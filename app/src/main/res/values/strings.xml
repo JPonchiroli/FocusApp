@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">FocusApp</string>
+
+    <string name="accessibility_service_description">
+        Monitora a abertura dos aplicativos para controlar o tempo de uso.
+    </string>
 </resources>
