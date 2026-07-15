@@ -96,4 +96,15 @@ class PermissionManager(
         return true
     }
 
+    fun requestPermission(type: PermissionType) {
+        when (type) {
+            PermissionType.USAGE_ACCESS -> openUsageAccessSettings()
+            PermissionType.ACCESSIBILITY -> openAccessibilitySettings()
+            PermissionType.BATTERY_OPTIMIZATION -> {
+                // Sprint 3
+            }
+        }
+
+    }
+
 }

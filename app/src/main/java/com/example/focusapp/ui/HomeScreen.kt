@@ -10,26 +10,46 @@ import com.example.focusapp.ui.components.Header
 import com.example.focusapp.ui.components.MonitoredAppsCard
 import com.example.focusapp.ui.components.StartMonitoringButton
 import com.example.focusapp.ui.components.StatusCard
-import androidx.compose.ui.platform.LocalContext
-import com.example.focusapp.model.PermissionState
-import com.example.focusapp.model.PermissionType
-import com.example.focusapp.permission.PermissionManager
 import com.example.focusapp.ui.components.permissions.PermissionsCard
+import com.example.focusapp.viewmodel.PermissionsViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun HomeScreen() {
 
-    val context = LocalContext.current
+    val viewModel = viewModel<PermissionsViewModel>()
 
-    val permissionManager = remember {
-        PermissionManager(context)
-    }
+    val permissions by viewModel.permissions.collectAsStateWithLifecycle()
 
-    val permissions by remember {
-        mutableStateOf(permissionManager.getPermissionStates())
-    }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val scrollState = rememberScrollState()
+
+    DisposableEffect(lifecycleOwner) {
+
+        val observer = LifecycleEventObserver { _, event ->
+
+            if (event == Lifecycle.Event.ON_RESUME) {
+
+                viewModel.onScreenResumed()
+
+            }
+
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+
+            lifecycleOwner.lifecycle.removeObserver(observer)
+
+        }
+
+    }
 
     Column(
         modifier = Modifier
@@ -48,19 +68,7 @@ fun HomeScreen() {
 
             onGrantClick = { permission ->
 
-                when(permission.type){
-
-                    PermissionType.USAGE_ACCESS ->
-                        permissionManager.openUsageAccessSettings()
-
-                    PermissionType.ACCESSIBILITY ->
-                        permissionManager.openAccessibilitySettings()
-
-                    PermissionType.BATTERY_OPTIMIZATION -> {
-                        // Sprint 3
-                    }
-
-                }
+                viewModel.openPermission(permission)
 
             }
 
